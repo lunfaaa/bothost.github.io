@@ -272,19 +272,18 @@ body {
   box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
 }
 
-/* Lista de features en las cards de planes */
-.plan-card .features{
-  list-style: none;      /* saca los bullets */
-  padding-left: 0;       /* elimina indentación */
-  margin: 10px 0 0;
-  display: grid;
-  gap: 6px;
-  color: var(--muted);
-  font-size: 14px;
+.plan-card ul.features {
+  list-style: none;      /* elimina bullets */
+  padding: 0;            /* quita sangría izquierda */
+  margin: 10px 0 0;      /* ajusta espacio arriba */
 }
-.plan-card .features li{
-  display: flex;
+
+.plan-card ul.features li {
+  margin: 4px 0;         /* espacio entre items */
+  display: flex; 
   align-items: center;
-  gap: 6px;              /* separa el emoji del texto */
+  gap: 8px;              /* separa emoji/texto */
+  color: var(--text);    /* asegura color correcto */
+  font-size: 14px;
   line-height: 1.4;
 }
