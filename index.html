@@ -1,206 +1,118 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bothost — Hosting de bots de Discord en kubernetes</title>
-  <meta name="description" content="Hospedá tu bot de Discord sin complicaciones. Infra optimizada en kubernetes, uptime garantizado y soporte humano directo." />
-  <meta property="og:title" content="Bothost — Hosting de bots de Discord en kubernetes" />
-  <meta property="og:description" content="Hospedá tu bot de Discord sin complicaciones. Infra optimizada en kubernetes, uptime garantizado y soporte humano directo." />
-  <meta property="og:type" content="website" />
-  <meta property="og:image" content="/og.png" />
-  <meta name="theme-color" content="#0ea5e9" />
-  <link rel="icon" type="image/png" href="logo.png" />
-  <style>
-    :root {
-      --bg: #0b0c10;
-      --bg-soft: #11131a;
-      --text: #e6eaf2;
-      --muted: #a4adbd;
-      --brand: #0ea5e9; /* sky-500 */
-      --brand-contrast: #03131a;
-      --card: #0f1217;
-      --accent: #22c55e; /* green-500 */
-      --ring: rgba(14,165,233,0.35);
-    }
-    @media (prefers-color-scheme: light) {
-      :root { 
-        --bg: #f8fafc; --bg-soft:#f1f5f9; --text:#0f172a; --muted:#475569; --card:#ffffff; --brand:#0ea5e9; --brand-contrast:#03131a; --accent:#16a34a; --ring:rgba(14,165,233,.2);
-      }
-    }
-    * { box-sizing: border-box; }
-    html, body { margin:0; padding:0; background: var(--bg); color: var(--text); font: 16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,"Helvetica Neue",Arial,"Apple Color Emoji","Segoe UI Emoji"; }
-    a { color: inherit; text-decoration: none; }
-    .container { width: 100%; max-width: 1100px; margin-inline: auto; padding: 24px; }
-    header { position: sticky; top: 0; backdrop-filter: blur(8px); background: color-mix(in oklab, var(--bg) 85%, transparent); border-bottom: 1px solid color-mix(in oklab, var(--text) 10%, transparent); z-index: 10; }
-    .nav { display:flex; align-items:center; justify-content:space-between; gap:16px; }
-    .brand { display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing: .2px; }
-    .logo { width: 28px; height: 28px; display:grid; place-items:center; border-radius:8px; background: linear-gradient(135deg, var(--brand), #7dd3fc); color:#002e3d; font-size: 18px; font-weight:900; }
-    .menu { display:flex; gap:18px; font-weight:600; color:var(--muted); }
-    .menu a:hover { color: var(--text); }
-    .btn { display:inline-flex; align-items:center; gap:10px; padding:12px 16px; border-radius:12px; background: var(--brand); color: white; font-weight: 800; box-shadow: 0 6px 20px -6px var(--ring); border: 1px solid color-mix(in oklab, var(--brand) 80%, #0000); }
-    .btn:hover { filter: brightness(1.05); transform: translateY(-1px); transition: .2s ease; }
-    .btn.outline { background: transparent; color: var(--brand); border:1px solid color-mix(in oklab, var(--brand) 70%, #0000); }
-
-    .hero { padding: 64px 0 24px; text-align:center; }
-    .eyebrow { display:inline-block; background: color-mix(in oklab, var(--brand) 18%, transparent); color: color-mix(in oklab, var(--brand) 85%, white); border: 1px solid color-mix(in oklab, var(--brand) 40%, transparent); padding: 6px 10px; border-radius: 999px; font-weight:700; font-size: 12px; letter-spacing:.3px; }
-    h1 { font-size: clamp(28px, 6vw, 48px); margin: 14px 0 10px; line-height:1.1; }
-    .subtitle { color: var(--muted); font-size: clamp(16px, 2.4vw, 18px); max-width: 820px; margin: 0 auto 24px; }
-    .cta-row { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
-
-    section { padding: 36px 0; border-top: 1px dashed color-mix(in oklab, var(--text) 12%, transparent); }
-    h2 { font-size: clamp(22px, 4vw, 32px); margin: 0 0 12px; }
-    p.lead { color: var(--muted); margin: 0 0 18px; }
-
-    .grid { display:grid; gap:16px; }
-    @media (min-width: 700px) { .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-
-    .card { background: var(--card); border:1px solid color-mix(in oklab, var(--text) 10%, transparent); border-radius: 16px; padding: 18px; }
-    .card h3 { margin: 0 0 8px; font-size: 18px; }
-    .card p { margin: 0; color: var(--muted); }
-    .badge { display:inline-flex; align-items:center; gap:8px; font-weight:700; color: var(--muted); }
-
-    .steps { counter-reset: step; display:grid; gap: 14px; }
-    .step { display:flex; gap:12px; align-items:flex-start; background: var(--card); border:1px solid color-mix(in oklab, var(--text) 10%, transparent); padding:14px; border-radius:14px; }
-    .num { width:32px; height:32px; border-radius:10px; background: color-mix(in oklab, var(--brand) 25%, var(--bg)); display:grid; place-items:center; color: var(--brand); font-weight:800; border:1px solid color-mix(in oklab, var(--brand) 55%, transparent) }
-
-    .stack { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    .pill { display:inline-flex; align-items:center; gap:8px; border:1px solid color-mix(in oklab, var(--text) 14%, transparent); padding:8px 12px; border-radius:999px; color: var(--muted); background: var(--card); }
-    .pill svg { width:18px; height:18px; }
-
-    footer { padding: 30px 0 60px; color: var(--muted); font-size: 14px; text-align:center; }
-    .divider { margin: 28px 0; border-top:1px dashed color-mix(in oklab, var(--text) 12%, transparent); }
-
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 13px; color: var(--muted); }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BotHost — Hosting de bots de Discord</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="icon" href="assets/img/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <header>
-    <div class="container nav">
-      <div class="brand">
-        <div class="logo">
-          <img src="logo.png" alt="Bothost logo" style="width:100%; height:auto; display:block; border-radius:8px;" />
-        </div>
-        <span>Bothost</span>
-      </div>
-      <nav class="menu">
-        <a href="#como">Cómo funciona</a>
-        <a href="#planes">Planes</a>
-        <a href="#infra">Infraestructura</a>
-        <a class="btn outline" href="https://discord.gg/kuqYP6JJPr" target="_blank" rel="noopener">Abrí un ticket</a>
-      </nav>
+
+  <header class="header">
+    <div class="container">
+      <img src="assets/img/logo.png" alt="BotHost Logo" class="logo" />
+      <h1 class="brand">BotHost</h1>
+      <p class="slogan">El motor detrás de los mejores bots de Discord.</p>
     </div>
   </header>
 
-  <main>
-    <!-- Hero -->
-    <section class="hero container" id="hero">
-      <span class="eyebrow">🚀 BotHost tu mejor opción para alojar a tu bot de discord</span>
-      <h1>🛰️ Hospedá tu bot de Discord <span style="white-space:nowrap">sin complicaciones</span></h1>
-      <p class="subtitle">Infraestructura optimizada en <strong>kubernetes</strong>, uptime garantizado y <strong>soporte humano directo</strong>.</p>
-      <div class="cta-row">
-        <a class="btn" href="https://discord.gg/kuqYP6JJPr" target="_blank" rel="noopener">👉 Contactanos en Discord</a>
-        <a class="btn outline" href="#planes">Ver planes</a>
-      </div>
-      <div class="divider"></div>
-    </section>
-
-    <!-- Cómo funciona -->
-    <section id="como">
-      <div class="container">
-        <h2>Cómo funciona?</h2>
-        <div class="steps">
-          <div class="step"><div class="num">1</div><div>
-            <strong>Contactanos por Discord</strong> → Abrí un ticket en nuestro servidor.
-          </div></div>
-          <div class="step"><div class="num">2</div><div>
-            <strong>Te guiamos</strong> → Te pedimos el código de tu bot y las variables necesarias (ej. token).
-          </div></div>
-          <div class="step"><div class="num">3</div><div>
-            <strong>Lo ponemos online</strong> → En minutos tu bot queda desplegado y funcionando 24/7.
-          </div></div>
-        </div>
-        <p class="mono" style="margin-top:10px">Panel en construcción, proximamente podras ver estadisticas de tu bot</p>
-      </div>
-    </section>
-
-    <!-- Planes -->
-    <section id="planes">
-      <div class="container">
-        <h2>Planes</h2>
-        <div class="grid cols-3">
-          <div class="card">
-            <h3>Starter</h3>
-            <p>1 bot pequeño</p>
-            <p class="badge">• 512 MB RAM · 0.5 CPU</p>
-          </div>
-          <div class="card">
-            <h3>Pro</h3>
-            <p>3 bots medianos</p>
-            <p class="badge">• 2 GB RAM · 1 CPU</p>
-          </div>
-          <div class="card">
-            <h3>Plus</h3>
-            <p>Hasta 5 bots grandes</p>
-            <p class="badge">• 4 GB RAM · 2 CPU</p>
-          </div>
-        </div>
-        <p style="margin-top:10px" class="lead">👉 Todos incluyen <strong>monitoreo</strong>, <strong>reinicio automático</strong> y <strong>soporte por ticket</strong>.</p>
-      </div>
-    </section>
-
-    <!-- Infraestructura -->
-    <section id="infra">
-      <div class="container">
-        <h2>Infraestructura (confianza)</h2>
-        <p class="lead">Tu bot corre en contenedores dentro de nuestro <strong>cluster de Kubernetes</strong> con nodos dedicados. Cada despliegue tiene <strong>aislamiento</strong>, <strong>reinicio automático</strong> y <strong>monitoreo activo</strong>. Garantizamos disponibilidad <strong>24/7</strong>.</p>
-        <div class="stack" aria-label="Tecnologías">
-          <span class="pill" title="Docker"> 
-            <!-- Docker icon -->
-            <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M236 110h-24c-4-16-20-26-36-24-6-16-22-26-40-24-6-16-22-26-40-24-6-16-22-26-40-24-2 0-4 2-4 4v92H20c-2 0-4 2-4 4 0 52 42 94 94 94h60c48 0 86-38 86-86 0-4-2-8-8-8z" fill="currentColor"/></svg>
-            Docker
-          </span>
-          <span class="pill" title="Kubernetes">
-            <!-- K8s icon -->
-            <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M128 16 28 70v116l100 54 100-54V70z" fill="none" stroke="currentColor" stroke-width="14"/><circle cx="128" cy="128" r="44" fill="currentColor"/></svg>
-            Kubernetes
-          </span>
-          <span class="pill" title="Discord">
-            <!-- Discord icon -->
-            <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M52 64c28-20 60-24 76-24l4 16c22 0 42 6 72 24 16 28 20 56 20 80-24 18-48 28-72 32l-8-12c-10 2-20 2-32 0l-8 12c-24-4-48-14-72-32 0-24 4-52 20-80z" fill="currentColor"/></svg>
-            Discord
-          </span>
-          <span class="pill" title="Prometheus">
-            <!-- Prometheus icon -->
-            <svg viewBox="0 0 256 256" aria-hidden="true"><circle cx="128" cy="128" r="104" fill="none" stroke="currentColor" stroke-width="14"/><path d="M128 60v80m-26-62 26 62m26-62-26 62m-42 32h84" stroke="currentColor" stroke-width="14"/></svg>
-            Prometheus
-          </span>
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA final -->
-    <section>
-      <div class="container" style="text-align:center">
-        <h2>¿Querés tu bot online hoy mismo?</h2>
-        <p class="lead">🎟️ Abrí un ticket y lo desplegamos por vos.</p>
-        <div class="cta-row">
-          <a class="btn" href="https://discord.gg/kuqYP6JJPr" target="_blank" rel="noopener">Abrí un ticket en nuestro Discord</a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="container">
-      <div>© <span id="y"></span> Bothost. Hecho con ❤️ sobre kubernetes.</div>
+  <section class="hero">
+    <div class="hero-content">
+      <h1>🛰️ Hospedá tu bot de Discord sin complicaciones</h1>
+      <p>Infraestructura optimizada en k3s, uptime garantizado y soporte humano directo.</p>
+      <a href="https://discord.gg/kuqYP6JJPr" class="btn-3d">👉 Contactanos en Discord</a>
     </div>
+  </section>
+
+  <section class="steps">
+    <h2>🚀 Cómo funciona</h2>
+    <div class="step-grid">
+      <div class="step">
+        <span>1️⃣</span>
+        <h3>Contactanos por Discord</h3>
+        <p>Abrí un ticket en nuestro servidor.</p>
+      </div>
+      <div class="step">
+        <span>2️⃣</span>
+        <h3>Te guiamos</h3>
+        <p>Nos pasás el código y variables necesarias (token, etc.).</p>
+      </div>
+      <div class="step">
+        <span>3️⃣</span>
+        <h3>Lo ponemos online</h3>
+        <p>En minutos tu bot queda funcionando 24/7.</p>
+      </div>
+    </div>
+  </section>
+
+<section class="plans">
+  <h2>💼 Nuestros planes</h2>
+  <div class="plan-grid">
+    
+    <div class="plan-card free">
+      <h3>Gratis</h3>
+      <p>Por 7 días</p>
+      <span>Ideal para probar tu bot sin compromiso.</span>
+      <a href="https://discord.gg/kuqYP6JJPr" class="btn-3d small">🆓 Probar Gratis</a>
+    </div>
+
+    <div class="plan-card">
+      <h3>Starter</h3>
+      <p>1 bot pequeño</p>
+      <span>512 MB RAM • 0.5 CPU</span>
+      <div class="price">$5 USD / mes</div>
+      <a href="https://discord.gg/kuqYP6JJPr" class="btn-3d small">Elegir</a>
+    </div>
+
+    <div class="plan-card featured">
+      <h3>Pro</h3>
+      <p>3 bots medianos</p>
+      <span>2 GB RAM • 1 CPU</span>
+      <div class="price">$15 USD / mes</div>
+      <a href="https://discord.gg/kuqYP6JJPr" class="btn-3d small">Elegir</a>
+    </div>
+
+    <div class="plan-card">
+      <h3>Plus</h3>
+      <p>Hasta 5 bots grandes</p>
+      <span>4 GB RAM • 2 CPU</span>
+      <div class="price">$30 USD / mes</div>
+      <a href="https://discord.gg/kuqYP6JJPr" class="btn-3d small">Elegir</a>
+    </div>
+  </div>
+  <p class="plan-note">Todos incluyen monitoreo, reinicio automático y soporte por ticket.</p>
+
+  <div class="free-trial">
+    <a href="https://discord.gg/kuqYP6JJPr" class="btn-3d large">🆓 Empezar Prueba Gratuita de 7 Días</a>
+  </div>
+</section>
+
+  <section class="infra">
+    <h2>🧠 Infraestructura confiable</h2>
+    <p>
+      Tu bot corre en contenedores dentro de nuestro cluster de Kubernetes con nodos dedicados.
+      Cada despliegue tiene aislamiento, reinicio automático y monitoreo activo.
+      Garantizamos disponibilidad 24/7.
+    </p>
+    <div class="tech-icons">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" alt="Docker">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kubernetes/kubernetes-plain.svg" alt="Kubernetes">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/discordjs/discordjs-original.svg" alt="Discord">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/prometheus/prometheus-original.svg" alt="Prometheus">
+    </div>
+  </section>
+
+  <section class="cta-final">
+    <h2>¿Querés tu bot online hoy mismo?</h2>
+    <a href="https://discord.gg/kuqYP6JJPr" class="btn-3d large">🎟️ Abrí un ticket en nuestro Discord</a>
+  </section>
+
+  <footer class="footer">
+    <p>© 2025 BotHost — Todos los derechos reservados.</p>
   </footer>
 
-  <script>
-    document.getElementById('y').textContent = new Date().getFullYear();
-    // Smooth scroll for same-page links
-    document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click', e=>{const href=a.getAttribute('href'); if(href.length>1){ e.preventDefault(); document.querySelector(href)?.scrollIntoView({behavior:'smooth'}); }}));
-  </script>
+  <script src="assets/js/main.js"></script>
 </body>
 </html>
