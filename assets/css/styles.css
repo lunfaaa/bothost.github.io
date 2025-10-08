@@ -271,3 +271,20 @@ body {
   transform: translateY(-3px);
   box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
 }
+
+/* Lista de features en las cards de planes */
+.plan-card .features{
+  list-style: none;      /* saca los bullets */
+  padding-left: 0;       /* elimina indentación */
+  margin: 10px 0 0;
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.plan-card .features li{
+  display: flex;
+  align-items: center;
+  gap: 6px;              /* separa el emoji del texto */
+  line-height: 1.4;
+}
